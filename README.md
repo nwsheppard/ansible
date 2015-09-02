@@ -6,7 +6,7 @@ Ansible playbooks that assist in deploying and configuring the servers.
 
 # Example commands
 ```
-ansible-playbook aws-linux-create.yml --extra-vars "access=$AWS_ACCESS_KEY secret=$AWS_SECRET_KEY key=$AWS_PEM subnet=$AWS_SUBNET name=$SERVER_NAME"
+ansible-playbook aws-linux-create.yml --extra-vars "access=$AWS_ACCESS_KEY secret=$AWS_SECRET_KEY key=$AWS_PEM subnet=$AWS_SUBNET name=$SERVER_NAME group=$SECURITY_GROUP"
 ```
 
 ```
