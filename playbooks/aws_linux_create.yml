@@ -12,7 +12,7 @@
         key_name: "{{ key }}"
         vpc_subnet_id: "{{ subnet }}"
         assign_public_ip: yes
-        group: "{{ name }}"
+        group: "{{ group }}"
         instance_type: t2.micro
         image: ami-0d4cfd66
         count: 1
