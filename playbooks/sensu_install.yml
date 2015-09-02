@@ -4,4 +4,4 @@
   user: ec2-user
   sudo: true
   tasks:
-    - include: ./tasks/sensu.yml
+    - include: ../tasks/sensu.yml
