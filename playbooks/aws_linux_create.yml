@@ -6,18 +6,18 @@
     - name: Launch instances
       local_action:
         module: ec2
-        aws_access_key: {{ access }}
-        aws_secret_key: {{ secret }}
+        aws_access_key: "{{ access }}"
+        aws_secret_key: "{{ secret }}"
         region: us-east-1
-        key_name: {{ key }}
-        vpc_subnet_id: {{ subnet }}
+        key_name: "{{ key }}"
+        vpc_subnet_id: "{{ subnet }}"
         assign_public_ip: yes
-        group: {{ name }}
+        group: "{{ name }}"
         instance_type: t2.micro
         image: ami-0d4cfd66
         count: 1
         instance_tags:
-          Name: {{ name }}
+          Name: "{{ name }}"
         wait: yes
       register: ec2
 
