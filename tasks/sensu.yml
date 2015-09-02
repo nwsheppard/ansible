@@ -1,0 +1,115 @@
+---
+
+- name: Install Erlang repo
+  yum: name=http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm state=present
+
+- name: Install Erlang
+  yum: name=erlang state=present
+
+- name: Import RabbitMQ key
+  action: shell rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+
+- name: Install RabbitMQ
+  yum: name=http://www.rabbitmq.com/releases/rabbitmq-server/v3.5.3/rabbitmq-server-3.5.3-1.noarch.rpm
+
+- name: Activate RabbitMQ
+  action: shell chkconfig rabbitmq-server on
+
+- name: Start RabbitMQ
+  service: name=rabbitmq-server state=started
+
+- name: Configure RabbitMQ vhost
+  action: shell rabbitmqctl add_vhost /sensu
+  ignore_errors: yes
+
+- name: Add RabbitMQ user
+  action: shell rabbitmqctl add_user sensu secret
+  ignore_errors: yes
+
+- name: Set RabbitMQ permissions
+  action: shell rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+
+- name: Install EPEL repo
+  yum: pkg=http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm state=installed
+
+- name: Install Redis
+  yum: name=redis enablerepo=epel state=present
+
+- name: Activate Redis
+  action: shell /sbin/chkconfig redis on
+
+- name: Start Redis
+  service: name=redis state=started
+
+- name: Add Sensu Repository
+  template: src=sensu.repo.j2 dest=/etc/yum.repos.d/sensu.repo
+
+- name: Install Sensu
+  yum: name=sensu state=present
+
+- name: Download Sensu Config file
+  action: shell wget -O /etc/sensu/config.json http://sensuapp.org/docs/0.20/files/config.json
+
+- name: Add sample check to Sensu
+  action: shell wget -O /etc/sensu/conf.d/check_memory.json http://sensuapp.org/docs/0.20/files/check_memory.json
+
+- name: Add sample handler to Sensu
+  action: shell wget -O /etc/sensu/conf.d/default_handler.json http://sensuapp.org/docs/0.20/files/default_handler.json
+
+- name: Start the Sensu Server service
+  service: name=sensu-server state=started
+
+- name: Start the Sensu API service
+  service: name=sensu-api state=started
+
+- name: Activate Sensu server on boot
+  action: shell chkconfig sensu-server on
+
+- name: Actiavte Sensu API on boot
+  action: shell chkconfig sensu-api on
+
+- name: Configure Sensu client
+  action: shell wget -O /etc/sensu/conf.d/client.json http://sensuapp.org/docs/0.20/files/client.json
+
+- name: Install Check dependency
+  action: shell wget -O /etc/sensu/plugins/check-memory.sh http://sensuapp.org/docs/0.20/files/check-memory.sh
+
+- name: Make the Check executable
+  action: shell chmod +x /etc/sensu/plugins/check-memory.sh
+
+- name: Start the Sensu client
+  service: name=sensu-client state=started
+
+- name: Activate Sensu client on boot
+  action: shell chkconfig sensu-client on
+
+- name: Install the Uchiwa dashboard
+  yum: name=http://dl.bintray.com/palourde/uchiwa/uchiwa-0.10.3-1.i386.rpm
+
+- name: Install extra packages to build
+  yum: name={{ item }} state=present
+  with_items:
+      - gcc
+      - gcc-c++
+      - mysql-devel
+      - ruby-devel
+      - rubygems
+      - zlib-devel
+      - patch
+
+- name: Install Sensu plugins
+  gem: name={{ item }} state=present
+  with_items:
+      - sensu-plugins-http
+      - sensu-plugins-jenkins
+      - sensu-plugins-aws
+      - sensu-plugins-process-checks
+      - sensu-plugins-ssl
+      - sensu-plugins-elasticsearch
+      - sensu-plugins-logstash
+      - sensu-plugins-raid-checks
+      - sensu-plugins-nginx
+      - sensu-plugins-hipchat
+      - sensu-plugins-ansible
+      - sensu-plugins-java
+
